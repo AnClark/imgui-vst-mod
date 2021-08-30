@@ -104,6 +104,25 @@ void    ImGui_ImplOpenGL2_NewFrame()
         ImGui_ImplOpenGL2_CreateDeviceObjects();
 }
 
+// Special edition of ImGui_ImplOpenGL2_NewFrame() for VST plugin editors.
+// Won't assert if OpenGL backend is not intialized, just return bool state.
+// This can make sure that you can safely call UI drawing method on effEditIdle,
+// without using thread or mutex.
+//
+// To use in production, You must check if this method success or not before other steps,
+// or your editor may crash!
+bool    ImGui_ImplOpenGL2_NewFrame_NoAssert()
+{
+    ImGui_ImplOpenGL2_Data* bd = ImGui_ImplOpenGL2_GetBackendData();
+    if (!bd)
+        return false;
+
+    if (!bd->FontTexture)
+        return ImGui_ImplOpenGL2_CreateDeviceObjects();
+
+    return true;
+}
+
 static void ImGui_ImplOpenGL2_SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height)
 {
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers, polygon fill.
